@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+  
+    {
+      "type": "npm",
+      "script": "build",
+      "dependsOn": [
+        "func: extensions install",
+        "npm ci"
+      ],
+      "problemMatcher": "$tsc"
+    },
+    {
+      "type": "shell",
+      "label": "prune",
+      "command": "npm prune --production",
+      "dependsOn": "npm: build",
+      "problemMatcher": []
+    }
+  ]
+}
