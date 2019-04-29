@@ -17,7 +17,9 @@ describe('Testing SQLRepository POST - Save Tenant', () => {
     tenant.DisplayName = 'Rafat Sarosh';
     tenant.Photo = 'url for the photo';
     tenant.ProfileUrl = 'Profile';
-    tenant.Org = 'rafat';
+    tenant.Id = 999;
+    tenant.Email = "rsarosh@hotmail.com";
+ 
 
     await sqlRepositoy.saveTenant(tenant).then(result => {
       expect(result.rowsAffected[0]).to.eq(1);
@@ -35,7 +37,8 @@ describe('Save PullRequest', () => {
     tenant.DisplayName = 'Rafat Sarosh';
     tenant.Photo = 'url for the photo';
     tenant.ProfileUrl = 'Profile';
-    tenant.Org = 'rafat';
+    tenant.Id = 9999;
+    tenant.Email = "rsarosh@hotmail.com";
 
     await sqlRepositoy.saveTenant(tenant).then(result => {
       expect(result.rowsAffected[0]).to.eq(1);

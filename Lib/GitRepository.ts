@@ -13,6 +13,26 @@ class GitRepository {
     this.sqlRepository = new SQLRepository(null);
   }
 
+  //https://developer.github.com/v3/repos/hooks/
+  async GetHookStatus(tenantId: string, org: string) {
+    const url = 'https://api.github.com/orgs/' + org + '/hooks' ;
+    const reqHeader = await this.makeGitRequest(tenantId, 'GET', url, 'GET');
+    return new Promise((resolve, reject) => {
+      request( reqHeader, (error: any, response: any, body: any) => {
+        if (!error && response.statusCode === 200) {
+          let a = JSON.parse (body);
+          if (a[0].config.url){
+              resolve(true);
+          } else {
+              reject (false);
+          }
+        } else {
+          reject(false);
+        }
+      });
+    });
+  }
+
   async GetRepos(tenantId: string, org: string, bustTheCache: Boolean = false, getFromGit: Boolean = false, endCursor: string = '') {
     let cacheKey = 'GetRepos' + tenantId + org;
     if (endCursor.length > 0) {
@@ -61,10 +81,10 @@ class GitRepository {
     }
   }
 
-  async makeGitRequest(tenantId: string, graphQL: string, gUri: string = 'https://api.github.com/graphql') {
-    const token = 'Bearer ' + (await this.sqlRepository.GetToken(tenantId));
+  async makeGitRequest(tenantId: string, graphQL: string, gUri: string = 'https://api.github.com/graphql', method: string = 'POST') {
+    const token = 'Bearer ' + (await this.sqlRepository.GetToken(Number(tenantId)));
     let header = {
-      method: 'POST',
+      method: method,
       uri: gUri,
       headers: {
         'Content-Type': 'application/json',
@@ -89,27 +109,25 @@ class GitRepository {
         "pull_request"
       ],
       "config": {
-        "url": "https://gitanziohook.azurewebsites.net/api/httptrigger",
+        "url": "https://gatorgithook.azurewebsites.net/api/httptrigger",
         "content_type": "application/json",
         "secret": "Secret"
       }
     }`;
     try {
-      await request(await this.makeGitRequest(tenantId, graphQL, 'https://api.github.com/orgs/' + org + '/hooks'), 
-        (error: any, response: any, body: any) => {
-              
-              if (response.statusCode === 201) {
-                console.log('Successfully hook is setup');
-                console.log(body);
-                return 1;
-              } else {
-                if (response.statusCode === 422) {
-                  console.log('error: ' + response.statusCode);
-                  console.log(body);
-                  return 1;
-                }
-                return 0;
-              }
+      await request(await this.makeGitRequest(tenantId, graphQL, 'https://api.github.com/orgs/' + org + '/hooks'), (error: any, response: any, body: any) => {
+        if (response.statusCode === 201) {
+          console.log('Successfully hook is setup');
+          console.log(body);
+          return 1;
+        } else {
+          if (response.statusCode === 422) {
+            console.log('error: ' + response.statusCode);
+            console.log(body);
+            return 1;
+          }
+          return 0;
+        }
       });
     } catch (ex) {
       console.log(ex);

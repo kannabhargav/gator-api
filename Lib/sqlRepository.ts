@@ -26,7 +26,8 @@ class PullRequest {
 }
 
 class Tenant {
-  Org: string;
+  Id: number;
+  Email: string;
   UserName: string;
   DisplayName: string;
   ProfileUrl: String;
@@ -61,28 +62,33 @@ class SQLRepository {
       });
     }
   }
+
   async saveTenant(tenant: Tenant) {
-    await this.createPool();
-    const request = await this.pool.request();
-    if (!tenant.Photo) {
-      tenant.Photo = '';
+    try {
+      await this.createPool();
+      const request = await this.pool.request();
+      if (!tenant.Photo) {
+        tenant.Photo = '';
+      }
+      if (!tenant.DisplayName) {
+        tenant.DisplayName = '';
+      }
+      request.input('Id', sql.Int , tenant.Id);
+      request.input('email', sql.VarChar(200), tenant.Email);
+      request.input('UserName', sql.VarChar(200), tenant.UserName);
+      request.input('DisplayName', sql.VarChar(200), tenant.DisplayName);
+      request.input('ProfileUrl', sql.VarChar(1000), tenant.ProfileUrl);
+      request.input('AuthToken', sql.VarChar(4000), tenant.AuthToken);
+      request.input('RefreshToken', sql.VarChar(4000), tenant.RefreshToken);
+      request.input('Photo', sql.VarChar(1000), tenant.Photo);
+      const recordSet = await request.execute('SetTenant');
+      return recordSet;
+    } catch (ex) {
+      return ex;
     }
-    if (!tenant.DisplayName) {
-      tenant.DisplayName = '';
-    }
-    request.input('Id', sql.VarChar(200), tenant.Org);
-    request.input('UserName', sql.VarChar(200), tenant.UserName);
-    request.input('DisplayName', sql.VarChar(200), tenant.DisplayName);
-    request.input('ProfileUrl', sql.VarChar(1000), tenant.ProfileUrl);
-    request.input('AuthToken', sql.VarChar(4000), tenant.AuthToken);
-    request.input('RefreshToken', sql.VarChar(4000), tenant.RefreshToken);
-    request.input('Photo', sql.VarChar(1000), tenant.Photo);
-    const recordSet = await request.execute('SetTenant');
-    return recordSet;
   }
 
-  async SetRepoCollection(tenantId: string,org: string, repoCollectionName: string, repos : string ) {
-
+  async SetRepoCollection(tenantId: string, org: string, repoCollectionName: string, repos: string) {
     await this.createPool();
     const request = await this.pool.request();
     request.input('TenantId', sql.VarChar(200), tenantId);
@@ -93,8 +99,7 @@ class SQLRepository {
     return recordSet;
   }
 
-  async GetAllRepoCollection4TenantOrg(tenantId: string,org: string , bustTheCache: Boolean = false) {
-
+  async GetAllRepoCollection4TenantOrg(tenantId: string, org: string, bustTheCache: Boolean = false) {
     await this.createPool();
     const request = await this.pool.request();
     request.input('TenantId', sql.VarChar(200), tenantId);
@@ -103,14 +108,13 @@ class SQLRepository {
     return recordSet;
   }
 
-  async GetRepoCollectionByName( repoCollectionName: string, bustTheCache: Boolean = false) {
+  async GetRepoCollectionByName(repoCollectionName: string, bustTheCache: Boolean = false) {
     await this.createPool();
     const request = await this.pool.request();
     request.input('CollectionName', sql.VarChar(200), repoCollectionName);
     const recordSet = await request.execute('GetRepoCollectionByName');
-    return recordSet ;
+    return recordSet;
   }
-
 
   async SaveRepo(email: string, org: string, repos: string[]) {
     try {
@@ -201,15 +205,15 @@ class SQLRepository {
 
   //Token will return UserName, DisplayName, ProfileURL, AuthToken, LastUpdated and Photo (URL)
 
-  async GetTenant(email: string) {
-    let cacheKey = 'GetTenant-' + email;
+  async GetTenant(id: number) {
+    let cacheKey = 'GetTenant-' + id;
     let val = this.myCache.get(cacheKey);
     if (val) {
       return val;
     }
     await this.createPool();
     const request = await this.pool.request();
-    request.input('Id', sql.VarChar(200), email);
+    request.input('Id', sql.Int, id);
     const recordSet = await request.execute('GetTenant');
     if (recordSet) {
       this.myCache.set(cacheKey, recordSet);
@@ -217,13 +221,13 @@ class SQLRepository {
     return recordSet;
   }
 
-  async GetToken(email: string) {
-    let cacheKey = 'GetTenant-' + email;
+  async GetToken(id: number) {
+    let cacheKey = 'GetTenant-' + id;
     let val = this.myCache.get(cacheKey);
     if (val) {
       return val.recordset[0].Auth_Token;
     }
-    const recordSet = await this.GetTenant(email);
+    const recordSet = await this.GetTenant(id);
     return recordSet.recordset[0].Auth_Token;
   }
 

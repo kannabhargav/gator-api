@@ -14,6 +14,7 @@ const verifyOptions =  {
   try {
     const token = req.headers['authorization'];
     const result = jwt.verify ( token, 'JWTSuperSecret', verifyOptions);
+    return true;
     } catch (ex) {
       // var callbackURL = 'http://localhost:8080/login' ;
       // res.redirct (callbackURL);
@@ -21,9 +22,61 @@ const verifyOptions =  {
     }
  }
 
+ //It is a repeate of checktoken for now, but check should go away from here
+ function getTenant (req:any, res: any)  {
+  try {
+    const token = req.headers['authorization'];
+    const result = jwt.verify ( token, 'JWTSuperSecret', verifyOptions);
+    return result ;
+    } catch (ex) {
+      // var callbackURL = 'http://localhost:8080/login' ;
+      // res.redirct (callbackURL);
+      return false ;
+    }
+ }
+
+router.get ('/GetHookStatus', (req: any, res: any) => {
+  if (!checkToken(req, res)) {
+      return '{code: 404, message: "Auth Failed"}';
+  }
+  const tenant = getTenant (req, res);
+  gitRepository.GetHookStatus(tenant, req.query.org).then (result => {
+    /* 
+    [
+    {
+        "type": "Organization",
+        "id": 100742919,
+        "name": "web",
+        "active": true,
+        "events": [
+            "pull_request",
+            "push"
+        ],
+        "config": {
+            "content_type": "application/json",
+            "secret": "********",
+            "url": "https://gitanziohook.azurewebsites.net/api/httptrigger",
+            "insecure_ssl": "0"
+        },
+        "updated_at": "2019-04-08T23:05:07Z",
+        "created_at": "2019-04-08T23:05:07Z",
+        "url": "https://api.github.com/orgs/LabShare/hooks/100742919",
+        "ping_url": "https://api.github.com/orgs/LabShare/hooks/100742919/pings"
+    }
+]
+    */
+    if(result)
+      return res.json({val: true});
+    else 
+      return res.json({val: false}) ;
+     //return res.json(result.recordset);
+  });
+});
+
+ 
 router.get('/TopDevForLastXDays', (req: any, res: any) => {
   if (!checkToken(req, res)) {
-      return '{result: "Auth Failed"}';
+      return res.json ({val: "Auth Failed"});
   }
 
   if (!req.query.day) {

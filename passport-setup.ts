@@ -38,19 +38,26 @@ passport.use(
 
       let tenant = new Tenant();
       tenant.AuthToken = accessToken;
-      tenant.RefreshToken = refreshToken;
+      if(!refreshToken)
+         refreshToken = "";
+      tenant.RefreshToken = refreshToken ;
       tenant.UserName = profile.username;
       tenant.DisplayName = profile.displayName;
+ 
+      tenant.Id = profile.id;
       if (profile.photos[0]) {
         tenant.Photo = profile.photos[0].value;
       }
       tenant.ProfileUrl = profile.profileUrl;
       if (profile.emails[0]) {
-        tenant.Org = profile.emails[0].value;
+        tenant.Email = profile.emails[0].value;
       }
 
       let sqlRepositoy = new SQLRepository(null);
       sqlRepositoy.saveTenant(tenant).then(result => {
+        if(result.message) {
+          return done (result, profile);
+        }
         return done(null, profile);  
       });
     },
