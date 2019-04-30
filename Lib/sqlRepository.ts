@@ -140,8 +140,8 @@ class SQLRepository {
     }
   }
 
-  async GetRepo(email: string, org: string, bustTheCache: Boolean = false) {
-    let cacheKey = 'GetRepo' + email + org;
+  async GetRepo(tenantId: string, org: string, bustTheCache: Boolean = false) {
+    let cacheKey = 'GetRepo' + tenantId + org;
 
     if (bustTheCache) {
       this.myCache.del(cacheKey);
@@ -155,7 +155,7 @@ class SQLRepository {
 
     await this.createPool();
     const request = await this.pool.request();
-    request.input('TenantId', sql.VarChar(200), email);
+    request.input('TenantId', sql.VarChar(200), tenantId);
     request.input('Organization', sql.VarChar(200), org);
 
     const recordSet = await request.execute('GetRepos');

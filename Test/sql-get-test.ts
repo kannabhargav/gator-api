@@ -21,9 +21,9 @@ describe('TopDevForLastXDays', () => {
 });
 
 describe('GetOrg', () => {
-  it('should return rowsAffected', async () => {
+  it.only('should return rowsAffected', async () => {
     let gitRepository = new GitRepository();
-    await gitRepository.GetOrg('rsarosh@hotmail.com', true, true).then(result => {
+    await gitRepository.GetOrg('1040817', true, true).then(result => {
       expect(result.recordset.length).to.greaterThan(0);
       console.log(result.recordset[0]);
     });
@@ -80,7 +80,7 @@ describe('GetRepoCollectionByName', () => {
 
 //SetupWebHook
 describe('SetupWebHook', () => {
-  it.only('should return a number', async () => {
+  it('should return a number', async () => {
     let gitRepository = new GitRepository();
     let org = 'anziosystems';
     let tenantId = 'rsarosh@hotmail.com';

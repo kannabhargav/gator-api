@@ -2,7 +2,8 @@ import * as _ from 'lodash';
 import {isNullOrUndefined} from 'util';
 const NodeCache = require('node-cache');
 import {SQLRepository} from './sqlRepository';
-const request = require('request');
+// const req = require('request');
+const request = require('request-promise');
 
 class GitRepository {
   httpOptions: any;
@@ -31,7 +32,7 @@ class GitRepository {
         }
       });
     });
-  }
+  };
 
   async GetRepos(tenantId: string, org: string, bustTheCache: Boolean = false, getFromGit: Boolean = false, endCursor: string = '') {
     let cacheKey = 'GetRepos' + tenantId + org;
@@ -68,14 +69,14 @@ class GitRepository {
             let pageInfo = JSON.parse(body).data.organization.repositories.pageInfo;
             if (pageInfo.hasNextPage) {
               this.GetRepos(tenantId, org, bustTheCache, getFromGit, pageInfo.endCursor); //ooph! Recursive call
-            }
+            } 
           } else {
-            console.log(body);
+            console.log('GetRpo: ' + body);
           }
         },
       );
       //git call has put the org in SQL, now lets get it from (cache).
-      return await this.sqlRepository.GetOrg(tenantId, false);
+      return await this.sqlRepository.GetRepo(tenantId, org, false);
     } catch (ex) {
       console.log(ex);
     }
