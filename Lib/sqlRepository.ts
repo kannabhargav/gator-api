@@ -260,6 +260,8 @@ class SQLRepository {
       //nodes.forEach(async (elm: any) => {
       for (let i = 0; i < nodes.length; i++) {
         let elm = nodes [i];
+        if ( 'greenkeeper' === elm.author.login )
+          continue ;
         id = elm.id;
         url = elm.url;
         state = elm.state;
@@ -277,7 +279,7 @@ class SQLRepository {
         request.input('State', sql.VarChar(50), state);
         request.input('Title', sql.VarChar(5000), title);
         request.input('Created_At', sql.VarChar(20), created_at);
-        request.input('Body', sql.VarChar(2000), pr_body);
+        request.input('Body', sql.VarChar(2000), pr_body.substr(0,1999));
         request.input('Login', sql.VarChar(100), login);
         request.input('Avatar_Url', sql.VarChar(2000), avatar_url);
         request.input('User_Url', sql.VarChar(2000), user_url);
@@ -304,13 +306,13 @@ class SQLRepository {
     return recordSet.recordset[0].Auth_Token;
   }
 
-  async TopDevForLastXDays(tenant: string, day: number = 1) {
+  async TopDevForLastXDays(org: string, day: number = 1) {
     await this.createPool();
     const request = await this.pool.request();
-    if (!tenant) {
+    if (!org) {
       throw new Error('tenant cannot be null');
     }
-    request.input('Org', sql.VarChar(100), tenant);
+    request.input('Org', sql.VarChar(100), org);
     request.input('Day', sql.Int, day);
     const recordSet = await request.execute('TopDevForLastXDays');
     return recordSet;
@@ -384,13 +386,13 @@ class SQLRepository {
     return recordSet;
   }
 
-  async GetTopRespositories4XDays(tenant: string, day: number = 1) {
+  async GetTopRespositories4XDays(org: string, day: number = 1) {
     await this.createPool();
     const request = await this.pool.request();
-    if (!tenant) {
+    if (!org) {
       throw new Error('tenant cannot be null');
     }
-    request.input('Org', sql.VarChar(100), tenant);
+    request.input('Org', sql.VarChar(100), org);
     request.input('Day', sql.Int, day);
     const recordSet = await request.execute('GetTopRespositories4XDays');
     return recordSet;

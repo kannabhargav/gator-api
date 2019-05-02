@@ -85,7 +85,7 @@ router.get('/TopDevForLastXDays', (req: any, res: any) => {
     req.query.day = '1';
   }
 
-  sqlRepositoy.TopDevForLastXDays(req.query.tenant, req.query.day).then(result => {
+  sqlRepositoy.TopDevForLastXDays(req.query.org, req.query.day).then(result => {
     return res.json(result.recordset);
   });
 });
@@ -140,7 +140,7 @@ router.get('/GetTopRespositories4XDays', (req: any, res: any) => {
   if (!req.query.day) {
     req.query.day = '1';
   }
-  sqlRepositoy.GetTopRespositories4XDays(req.query.tenant, req.query.day).then(result => {
+  sqlRepositoy.GetTopRespositories4XDays(req.query.org, req.query.day).then(result => {
     return res.json(result.recordset);
   });
 });
@@ -189,9 +189,9 @@ router.get('/GetPRfromGit', (req: any, res: any) => {
   gitRepository.GetRepos(tenantId, req.query.org, req.query.bustTheCache, req.query.getFromGit).then(result => {
      
       for (let i = 0; i < result.recordset.length; i++)   {
-            if ( i === 5) 
+            if ( i === 100) 
                break; //git does't like it to be hitting hard
-            gitRepository.FillPullRequest (tenantId, req.query.org, result.recordset[1].RepoName );
+            gitRepository.FillPullRequest (tenantId, req.query.org, result.recordset[i].RepoName );
        }
   });
 });
