@@ -2,6 +2,7 @@ let sql = require('mssql');
 import {sqlConfigSetting} from './sqlConfig';
 import * as _ from 'lodash';
 import {isNullOrUndefined} from 'util';
+import {EMLINK} from 'constants';
 const NodeCache = require('node-cache');
 
 class PullRequest {
@@ -73,7 +74,7 @@ class SQLRepository {
       if (!tenant.DisplayName) {
         tenant.DisplayName = '';
       }
-      request.input('Id', sql.Int , tenant.Id);
+      request.input('Id', sql.Int, tenant.Id);
       request.input('email', sql.VarChar(200), tenant.Email);
       request.input('UserName', sql.VarChar(200), tenant.UserName);
       request.input('DisplayName', sql.VarChar(200), tenant.DisplayName);
@@ -221,8 +222,80 @@ class SQLRepository {
     return recordSet;
   }
 
+  //GetPR
+  async GetPR4Repo(org: string, repo: string, bustTheCache: boolean = false) {
+    await this.createPool();
+    let cacheKey = 'GetPR4Repo -' + org + repo;
+    let val = this.myCache.get(cacheKey);
+    if (val) {
+      return val;
+    }
+    const request = await this.pool.request();
+
+    request.input('org', sql.VarChar(1000), org);
+    request.input('repo', sql.VarChar(1000), repo);
+
+    const recordSet = await request.execute('GetPR4Repo');
+    this.myCache.set(cacheKey, recordSet);
+    return recordSet;
+  }
+
+  async SavePR4Repo(org: string, repo: string, body: string) {
+    try {
+      await this.createPool();
+      let pr = JSON.parse(body);
+      let id: string;
+      let url: string;
+      let state: string;
+      let title: string;
+      let created_at: string;
+      let pr_body: string;
+      let login: string;
+      let avatar_url: string;
+      let user_url: string;
+
+      const request = await this.pool.request();
+      let nodes = pr.data.viewer.organization.repository.pullRequests.nodes;
+     
+      //nodes.forEach(async (elm: any) => {
+      for (let i = 0; i < nodes.length; i++) {
+        let elm = nodes [i];
+        id = elm.id;
+        url = elm.url;
+        state = elm.state;
+        title = elm.title;
+        created_at = elm.createdAt;
+        pr_body = elm.body;
+        login = elm.author.login;
+        avatar_url = elm.author.avatarUrl;
+        user_url = elm.author.url;
+
+        request.input('Id', sql.VarChar(200), id);
+        request.input('Org', sql.VarChar(1000), org);
+        request.input('Repo', sql.VarChar(1000), repo);
+        request.input('Url', sql.VarChar(1000), url);
+        request.input('State', sql.VarChar(50), state);
+        request.input('Title', sql.VarChar(5000), title);
+        request.input('Created_At', sql.VarChar(20), created_at);
+        request.input('Body', sql.VarChar(2000), pr_body);
+        request.input('Login', sql.VarChar(100), login);
+        request.input('Avatar_Url', sql.VarChar(2000), avatar_url);
+        request.input('User_Url', sql.VarChar(2000), user_url);
+        try {
+          console.log(repo + '->' + id);
+          let x =  await request.execute('SavePR4Repo');
+        } catch (ex) {
+          console.log(ex);
+        }
+      };
+    } catch (ex) {
+      return false;
+    }
+    return true;
+  }
+
   async GetToken(id: number) {
-    let cacheKey = 'GetTenant-' + id;
+    let cacheKey = 'GetTenant -' + id;
     let val = this.myCache.get(cacheKey);
     if (val) {
       return val.recordset[0].Auth_Token;

@@ -187,7 +187,10 @@ router.get('/GetPRfromGit', (req: any, res: any) => {
   }
   const tenantId = getTenant (req, res);
   gitRepository.GetRepos(tenantId, req.query.org, req.query.bustTheCache, req.query.getFromGit).then(result => {
-    return res.json(result.recordset);
+     
+      for (let i = 0; i < result.recordset.length; i++)   {
+            gitRepository.FillPullRequest (tenantId, req.query.org, result.recordset[1].RepoName );
+       }
   });
 });
 

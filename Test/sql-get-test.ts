@@ -21,7 +21,7 @@ describe('TopDevForLastXDays', () => {
 });
 
 describe('GetOrg', () => {
-  it.only('should return rowsAffected', async () => {
+  it('should return rowsAffected', async () => {
     let gitRepository = new GitRepository();
     await gitRepository.GetOrg('1040817', true, true).then(result => {
       expect(result.recordset.length).to.greaterThan(0);

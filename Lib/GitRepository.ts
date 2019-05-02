@@ -34,6 +34,55 @@ class GitRepository {
     });
   };
 
+
+  //Gets the PR for a Organization and a repo
+
+  async FillPullRequest(tenantId: string, org: string, repo: string, bustTheCache: Boolean = false, getFromGit: Boolean = false, endCursor: string = '') {
+    let cacheKey = 'FillPullRequest' + tenantId + org + repo;
+    if (endCursor.length > 0) {
+      //No need to be bothered by caching etc
+
+      if (bustTheCache) {
+        this.sqlRepository.myCache.del(cacheKey);
+      }
+
+      if (!getFromGit) {
+        //Get from local store
+        let result = this.sqlRepository.myCache.get(cacheKey);
+        if (result) {
+          return result;
+        }
+        //Get from sql
+        result = await this.sqlRepository.GetPR4Repo(org, repo);
+        if (result.recordset[0]) {
+          this.sqlRepository.myCache.set(cacheKey, result.recordset);
+          return result.recordset[0];
+        }
+      }
+    }
+    //Lets go to git
+    let graphQL = `{\"query\":\"{viewer  {  name          organization(login: \\"` + org + `\\") {     name        repository(name: \\"` + repo + `\\") { name            pullRequests(last: 10) {  nodes { id  url  state  title   permalink   createdAt  body  repository { name } author                                                                                                                                                                                { login  avatarUrl url                                           }            }          }        }      }    }  }\",\"variables\":{}}` ;
+
+    try {
+      request(
+        await this.makeGitRequest(tenantId, graphQL),
+
+        async (error: any, response: any, body: any) => {
+          if (response.statusCode === 200) {
+            await this.sqlRepository.SavePR4Repo(org, repo, body);
+          } else {
+            console.log('FillPullRequest: ' + body);
+          }
+        },
+      );
+      //git call has put the PR in SQL, now lets get it from (cache).
+      return await this.sqlRepository.GetPR4Repo( org, repo);
+    } catch (ex) {
+      console.log(ex);
+    }
+  }
+
+
   async GetRepos(tenantId: string, org: string, bustTheCache: Boolean = false, getFromGit: Boolean = false, endCursor: string = '') {
     let cacheKey = 'GetRepos' + tenantId + org;
     if (endCursor.length > 0) {
