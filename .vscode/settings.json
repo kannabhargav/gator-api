@@ -8,5 +8,10 @@
     "obj": true,
     "bin": true
   },
-  "debug.internalConsoleOptions": "neverOpen"
+  "debug.internalConsoleOptions": "neverOpen",
+  "appService.zipIgnorePattern": [
+    ".vscode{,/**}"
+  ],
+  "appService.deploySubpath": "",
+  "appService.defaultWebAppToDeploy": "/subscriptions/b44ab592-ac83-4c30-a162-fdde55233080/resourceGroups/GatorServices/providers/Microsoft.Web/sites/gator-api"
 }

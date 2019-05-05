@@ -198,10 +198,10 @@ class SQLRepository {
     const request = await this.pool.request();
     request.input('TenantId', sql.VarChar(200), email);
     const recordSet = await request.execute('GetOrg');
-    if (recordSet) {
-      this.myCache.set(cacheKey, recordSet);
+    if (recordSet.recordset) {
+      this.myCache.set(cacheKey, recordSet.recordset);
     }
-    return recordSet;
+    return recordSet.recordset;
   }
 
   //Token will return UserName, DisplayName, ProfileURL, AuthToken, LastUpdated and Photo (URL)
@@ -268,6 +268,12 @@ class SQLRepository {
         title = elm.title;
         created_at = elm.createdAt;
         pr_body = elm.body;
+        if (!pr_body) {
+          pr_body = " ";
+        }
+        if (pr_body.length > 1999) {
+          pr_body = pr_body.substr (0, 1998);
+        }
         login = elm.author.login;
         avatar_url = elm.author.avatarUrl;
         user_url = elm.author.url;
@@ -279,7 +285,7 @@ class SQLRepository {
         request.input('State', sql.VarChar(50), state);
         request.input('Title', sql.VarChar(5000), title);
         request.input('Created_At', sql.VarChar(20), created_at);
-        request.input('Body', sql.VarChar(2000), pr_body.substr(0,1999));
+        request.input('Body', sql.VarChar(2000), pr_body);
         request.input('Login', sql.VarChar(100), login);
         request.input('Avatar_Url', sql.VarChar(2000), avatar_url);
         request.input('User_Url', sql.VarChar(2000), user_url);

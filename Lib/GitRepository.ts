@@ -194,15 +194,8 @@ class GitRepository {
 
     if (!getFromGit) {
       //Get from local store
-      let result = this.sqlRepository.myCache.get(cacheKey);
-      if (result) {
-        return result;
-      }
-      result = await this.sqlRepository.GetOrg(tenantId);
-      if (result.recordset[0]) {
-        this.sqlRepository.myCache.set(cacheKey, result.recordset);
-        return result.recordset[0];
-      }
+      const result = await this.sqlRepository.GetOrg(tenantId);
+      return result;
     }
     //Lets go to git
     const graphQL = `{\"query\": \"query { viewer {name organizations(last: 100) { nodes { name }} }}\",\"variables\":{}}`;
