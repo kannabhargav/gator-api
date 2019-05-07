@@ -40,27 +40,25 @@ describe('GetRepos', () => {
   });
 });
 
-
 describe('SetRepoCollection', () => {
   it('should return recordset', async () => {
     let sqlRepositoy = new SQLRepository(null);
     let org = 'LabShare';
     let tenantId = 'rsarosh@hotmail.com';
-    let repos = '1,2,3,4'
-    await sqlRepositoy.SetRepoCollection(tenantId, org, "NewCollection", repos).then(result => {
+    let repos = '1,2,3,4';
+    await sqlRepositoy.SetRepoCollection(tenantId, org, 'NewCollection', repos).then(result => {
       expect(result.rowsAffected.length).to.greaterThan(0);
       console.log(result.rowsAffected);
     });
   });
 });
 
-
 describe('GetAllRepoCollection4TenantOrg', () => {
   it('should return recordset', async () => {
     let sqlRepositoy = new SQLRepository(null);
     let org = 'LabShare';
     let tenantId = 'rsarosh@hotmail.com';
-   
+
     await sqlRepositoy.GetAllRepoCollection4TenantOrg(tenantId, org, false).then(result => {
       expect(result.recordset.length).to.greaterThan(0);
       console.log(result.recordset);
@@ -71,7 +69,7 @@ describe('GetAllRepoCollection4TenantOrg', () => {
 describe('GetRepoCollectionByName', () => {
   it('should return recordset', async () => {
     let sqlRepositoy = new SQLRepository(null);
-   await sqlRepositoy.GetRepoCollectionByName("NewCollection", false).then(result => {
+    await sqlRepositoy.GetRepoCollectionByName('NewCollection', false).then(result => {
       expect(result.recordset.length).to.greaterThan(0);
       console.log(result.recordset);
     });
@@ -84,15 +82,12 @@ describe('SetupWebHook', () => {
     let gitRepository = new GitRepository();
     let org = 'anziosystems';
     let tenantId = 'rsarosh@hotmail.com';
-   await gitRepository.SetupWebHook(tenantId, org).then(result => {
+    await gitRepository.SetupWebHook(tenantId, org).then(result => {
       console.log(result);
-      expect(result).to.eq (1);
-      
+      expect(result).to.eq(1);
     });
   });
 });
-
-
 
 describe('LongestPullRequest', () => {
   it('should return recordset', async () => {

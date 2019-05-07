@@ -1,22 +1,18 @@
 //https://www.youtube.com/watch?v=or1_A4sJ-oY
 const router = require('express').Router();
 import {keys} from './keys';
-const passport = require ('passport')
+const passport = require('passport');
 const passport_setup = require('./passport-setup');
 const jwt = require('jsonwebtoken');
-var callbackURL = 'http://localhost:8080/callback' ;
-
+var callbackURL = 'http://localhost:8080/callback';
 
 router.get('/login', (req: any, res: any) => {
- // callbackURL = req.query.callbackUrl ;
-  
+  // callbackURL = req.query.callbackUrl ;
   //res.send('/github');
 });
 
-
-
 router.get('/github', passport.authenticate('github'), (req: any, res: any) => {
- //This function will never be called.
+  //This function will never be called.
 });
 
 router.get('/logout', (req: any, res: any) => {
@@ -33,12 +29,8 @@ router.get('/github/redirect', passport.authenticate('github'), (req: any, res: 
   const token = jwt.sign(req.user.id, 'JWTSuperSecret');
   //return res.json({'user': token});
   // res.cookie = {'userid': JSON.stringify( req.user)};
-  
-   res.redirect (  callbackURL + '?token=' + token);
 
-   
+  res.redirect(callbackURL + '?token=' + token);
 });
-
-
 
 module.exports = router;

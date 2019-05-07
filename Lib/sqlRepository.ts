@@ -256,12 +256,11 @@ class SQLRepository {
 
       const request = await this.pool.request();
       let nodes = pr.data.viewer.organization.repository.pullRequests.nodes;
-     
+
       //nodes.forEach(async (elm: any) => {
       for (let i = 0; i < nodes.length; i++) {
-        let elm = nodes [i];
-        if ( 'greenkeeper' === elm.author.login )
-          continue ;
+        let elm = nodes[i];
+        if ('greenkeeper' === elm.author.login) continue;
         id = elm.id;
         url = elm.url;
         state = elm.state;
@@ -269,10 +268,10 @@ class SQLRepository {
         created_at = elm.createdAt;
         pr_body = elm.body;
         if (!pr_body) {
-          pr_body = " ";
+          pr_body = ' ';
         }
         if (pr_body.length > 1999) {
-          pr_body = pr_body.substr (0, 1998);
+          pr_body = pr_body.substr(0, 1998);
         }
         login = elm.author.login;
         avatar_url = elm.author.avatarUrl;
@@ -291,11 +290,11 @@ class SQLRepository {
         request.input('User_Url', sql.VarChar(2000), user_url);
         try {
           console.log(repo + '->' + id);
-          let x =  await request.execute('SavePR4Repo');
+          let x = await request.execute('SavePR4Repo');
         } catch (ex) {
           console.log(ex);
         }
-      };
+      }
     } catch (ex) {
       return false;
     }

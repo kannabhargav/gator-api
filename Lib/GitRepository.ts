@@ -16,24 +16,23 @@ class GitRepository {
 
   //https://developer.github.com/v3/repos/hooks/
   async GetHookStatus(tenantId: string, org: string) {
-    const url = 'https://api.github.com/orgs/' + org + '/hooks' ;
+    const url = 'https://api.github.com/orgs/' + org + '/hooks';
     const reqHeader = await this.makeGitRequest(tenantId, 'GET', url, 'GET');
     return new Promise((resolve, reject) => {
-      request( reqHeader, (error: any, response: any, body: any) => {
+      request(reqHeader, (error: any, response: any, body: any) => {
         if (!error && response.statusCode === 200) {
-          let a = JSON.parse (body);
-          if (a[0].config.url){
-              resolve(true);
+          let a = JSON.parse(body);
+          if (a[0].config.url) {
+            resolve(true);
           } else {
-              reject (false);
+            reject(false);
           }
         } else {
           reject(false);
         }
       });
     });
-  };
-
+  }
 
   //Gets the PR for a Organization and a repo
 
@@ -61,7 +60,12 @@ class GitRepository {
       }
     }
     //Lets go to git
-    let graphQL = `{\"query\":\"{viewer  {  name          organization(login: \\"` + org + `\\") {     name        repository(name: \\"` + repo + `\\") { name            pullRequests(last: 10) {  nodes { id  url  state  title   permalink   createdAt  body  repository { name } author                                                                                                                                                                                { login  avatarUrl url                                           }            }          }        }      }    }  }\",\"variables\":{}}` ;
+    let graphQL =
+      `{\"query\":\"{viewer  {  name          organization(login: \\"` +
+      org +
+      `\\") {     name        repository(name: \\"` +
+      repo +
+      `\\") { name            pullRequests(last: 10) {  nodes { id  url  state  title   permalink   createdAt  body  repository { name } author                                                                                                                                                                                { login  avatarUrl url                                           }            }          }        }      }    }  }\",\"variables\":{}}`;
 
     try {
       request(
@@ -76,12 +80,11 @@ class GitRepository {
         },
       );
       //git call has put the PR in SQL, now lets get it from (cache).
-      return await this.sqlRepository.GetPR4Repo( org, repo);
+      return await this.sqlRepository.GetPR4Repo(org, repo);
     } catch (ex) {
       console.log(ex);
     }
   }
-
 
   async GetRepos(tenantId: string, org: string, bustTheCache: Boolean = false, getFromGit: Boolean = false, endCursor: string = '') {
     let cacheKey = 'GetRepos' + tenantId + org;
@@ -118,7 +121,7 @@ class GitRepository {
             let pageInfo = JSON.parse(body).data.organization.repositories.pageInfo;
             if (pageInfo.hasNextPage) {
               this.GetRepos(tenantId, org, bustTheCache, getFromGit, pageInfo.endCursor); //ooph! Recursive call
-            } 
+            }
           } else {
             console.log('GetRpo: ' + body);
           }
