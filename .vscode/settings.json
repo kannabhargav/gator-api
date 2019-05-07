@@ -12,5 +12,6 @@
   "appService.zipIgnorePattern": [
     ".vscode{,/**}"
   ],
-  "appService.deploySubpath": ""
+  "appService.deploySubpath": "",
+  "appService.defaultWebAppToDeploy": "/subscriptions/b44ab592-ac83-4c30-a162-fdde55233080/resourceGroups/GatorServices/providers/Microsoft.Web/sites/gator-api"
 }
