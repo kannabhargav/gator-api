@@ -200,7 +200,8 @@ router.get('/GetPRfromGit', (req: any, res: any) => {
 
 //  /SetRepoCollection?tenantId=rsarosh@hotmail.com&org=Labshare&repoCollectionName=Collection1&repos=Repo1,Repo2,Repo3
 router.get('/SetRepoCollection', (req: any, res: any) => {
-  sqlRepositoy.SetRepoCollection(req.query.tenantId, req.query.org, req.query.repoCollectionName, req.query.repos).then(result => {
+  const tenantId = getTenant(req, res);
+  sqlRepositoy.SetRepoCollection(tenantId, req.query.org, req.query.repoCollectionName, req.query.repos).then(result => {
     return res.json(result.recordset);
   });
 });
@@ -209,7 +210,8 @@ router.get('/GetAllRepoCollection4TenantOrg', (req: any, res: any) => {
   if (!checkToken(req, res)) {
     return '{val: false, code: 404, message: "Auth Failed"}';
   }
-  sqlRepositoy.GetAllRepoCollection4TenantOrg(req.query.tenantId, req.query.org, req.query.bustTheCache).then(result => {
+  const tenantId = getTenant(req, res);
+  sqlRepositoy.GetAllRepoCollection4TenantOrg(tenantId, req.query.org, req.query.bustTheCache).then(result => {
     return res.json(result.recordset);
   });
 });
@@ -228,7 +230,8 @@ router.get('/SetupWebHook', (req: any, res: any) => {
   if (!checkToken(req, res)) {
     return '{val: false, code: 404, message: "Auth Failed"}';
   }
-  gitRepository.SetupWebHook(req.query.tenantId, req.query.org).then(result => {
+  const tenantId = getTenant(req, res);
+  gitRepository.SetupWebHook(tenantId, req.query.org).then(result => {
     return res.json(result);
   });
 });
