@@ -114,7 +114,7 @@ class SQLRepository {
     const request = await this.pool.request();
     request.input('CollectionName', sql.VarChar(200), repoCollectionName);
     const recordSet = await request.execute('GetRepoCollectionByName');
-    return recordSet;
+    return recordSet.recordset;
   }
 
   async SaveRepo(email: string, org: string, repos: string[]) {
@@ -320,7 +320,7 @@ class SQLRepository {
     request.input('Org', sql.VarChar(100), org);
     request.input('Day', sql.Int, day);
     const recordSet = await request.execute('TopDevForLastXDays');
-    return recordSet;
+    return recordSet.recordset;
   }
   async GetPullRequestForId(tenant: string, id: number = 1) {
     await this.createPool();
@@ -331,36 +331,42 @@ class SQLRepository {
     request.input('Org', sql.VarChar(100), tenant);
     request.input('Id', sql.Int, id);
     const recordSet = await request.execute('GetPullRequestforId');
-    return recordSet;
+    return recordSet.recordset;
   }
 
-  async PullRequestCountForLastXDays(tenant: string, day: number = 1) {
+  async PullRequestCountForLastXDays(org: string, day: number = 1) {
     await this.createPool();
-    let val = this.myCache.get(tenant + day.toString());
+    let cacheKey = 'PullRequestCountForLastXDays' + org + day.toString();
+    let val = this.myCache.get(cacheKey);
     if (val) {
       return val;
     }
 
     const request = await this.pool.request();
-    if (!tenant) {
+    if (!org) {
       throw new Error('tenant cannot be null');
     }
-    request.input('Org', sql.VarChar(100), tenant);
+    request.input('Org', sql.VarChar(100), org);
     request.input('Day', sql.Int, day);
     const recordSet = await request.execute('PullRequestCountForLastXDays');
-    this.myCache.set(tenant + day.toString(), recordSet);
-    return recordSet;
+    this.myCache.set(cacheKey, recordSet.recordset);
+    return recordSet.recordset;
   }
 
-  async PullRequest4Dev(tenant: string, day: number = 1, login: string, action: string, pageSize: number) {
+  async PullRequest4Dev(org: string, day: number = 1, login: string, action: string, pageSize: number) {
+    let cacheKey = 'PullRequest4Dev' + org + day.toString() + login;
+    let val = this.myCache.get(cacheKey);
+    if (val) {
+      return val;
+    }
     await this.createPool();
     const request = await this.pool.request();
-    if (!tenant) {
+    if (!org) {
       throw new Error('tenant cannot be null');
     }
     if (pageSize === 0) pageSize = 10;
 
-    request.input('Org', sql.VarChar(100), tenant);
+    request.input('Org', sql.VarChar(100), org);
 
     if (isNullOrUndefined(login) || login === '') {
       request.input('Login', sql.VarChar(200), 'null');
@@ -376,7 +382,8 @@ class SQLRepository {
     request.input('Day', sql.Int, day);
     request.input('pageSize', sql.Int, pageSize);
     const recordSet = await request.execute('PullRequest4Devs');
-    return recordSet;
+    this.myCache.set(cacheKey, recordSet.recordset);
+    return recordSet.recordset;
   }
 
   async LongestPullRequest(tenant: string, day: number = 1) {
@@ -400,7 +407,7 @@ class SQLRepository {
     request.input('Org', sql.VarChar(100), org);
     request.input('Day', sql.Int, day);
     const recordSet = await request.execute('GetTopRespositories4XDays');
-    return recordSet;
+    return recordSet.recordset;
   }
 
   async PullRequestForLastXDays(tenant: string, day: number = 1) {
@@ -412,7 +419,7 @@ class SQLRepository {
     request.input('Org', sql.VarChar(100), tenant);
     request.input('Day', sql.Int, day);
     const recordSet = await request.execute('PullRequestForLastXDays');
-    return recordSet;
+    return recordSet.recordset;
   }
 
   async getItem(query: string, page: number, pageSize: number) {

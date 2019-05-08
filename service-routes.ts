@@ -89,7 +89,7 @@ router.get('/TopDevForLastXDays', (req: any, res: any) => {
   }
 
   sqlRepositoy.TopDevForLastXDays(req.query.org, req.query.day).then(result => {
-    return res.json(result.recordset);
+    return res.json(result);
   });
 });
 /*
@@ -118,8 +118,9 @@ router.get('/PullRequestCountForLastXDays', (req: any, res: any) => {
   if (!req.query.day) {
     req.query.day = '1';
   }
-  sqlRepositoy.PullRequestCountForLastXDays(req.query.tenant, req.query.day).then(result => {
-    return res.json(result.recordsets);
+  const tenantId = getTenant(req, res);
+  sqlRepositoy.PullRequestCountForLastXDays(req.query.org, req.query.day).then(result => {
+    return res.json(result);
   });
 });
 
@@ -131,8 +132,9 @@ router.get('/PullRequestForLastXDays', (req: any, res: any) => {
   if (!req.query.day) {
     req.query.day = '1';
   }
-  sqlRepositoy.PullRequestForLastXDays(req.query.tenant, req.query.day).then(result => {
-    return res.json(result.recordset);
+  const tenantId = getTenant(req, res);
+  sqlRepositoy.PullRequestForLastXDays(tenantId, req.query.day).then(result => {
+    return res.json(result);
   });
 });
 
@@ -143,8 +145,9 @@ router.get('/GetTopRespositories4XDays', (req: any, res: any) => {
   if (!req.query.day) {
     req.query.day = '1';
   }
+  const tenantId = getTenant(req, res);
   sqlRepositoy.GetTopRespositories4XDays(req.query.org, req.query.day).then(result => {
-    return res.json(result.recordset);
+    return res.json(result);
   });
 });
 
@@ -155,9 +158,9 @@ router.get('/PullRequest4Dev', (req: any, res: any) => {
   if (!req.query.day) {
     req.query.day = '1';
   }
-
-  sqlRepositoy.PullRequest4Dev(req.query.tenant, req.query.day, req.query.login, req.query.action, req.query.pageSize).then(result => {
-    return res.json(result.recordset);
+  const tenantId = getTenant(req, res);
+  sqlRepositoy.PullRequest4Dev(req.query.org, req.query.day, req.query.login, req.query.action, req.query.pageSize).then(result => {
+    return res.json(result);
   });
 });
 
@@ -202,7 +205,7 @@ router.get('/GetPRfromGit', (req: any, res: any) => {
 router.get('/SetRepoCollection', (req: any, res: any) => {
   const tenantId = getTenant(req, res);
   sqlRepositoy.SetRepoCollection(tenantId, req.query.org, req.query.repoCollectionName, req.query.repos).then(result => {
-    return res.json(result.recordset);
+    return res.json(result);
   });
 });
 
@@ -212,7 +215,7 @@ router.get('/GetAllRepoCollection4TenantOrg', (req: any, res: any) => {
   }
   const tenantId = getTenant(req, res);
   sqlRepositoy.GetAllRepoCollection4TenantOrg(tenantId, req.query.org, req.query.bustTheCache).then(result => {
-    return res.json(result.recordset);
+    return res.json(result);
   });
 });
 
