@@ -33,7 +33,7 @@ describe('GetOrg', () => {
 describe('GetRepos', () => {
   it('should return rowsAffected', async () => {
     let gitRepository = new GitRepository();
-    await gitRepository.GetRepos('rsarosh@hotmail.com', 'LabShare', true, true, '').then(result => {
+    await gitRepository.GetRepos('rsarosh@hotmail.com', 'LabShare', true, true).then(result => {
       expect(result.recordset.length).to.greaterThan(0);
       console.log(result.recordset[0]);
     });

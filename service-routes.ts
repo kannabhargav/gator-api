@@ -66,9 +66,16 @@ router.get('/GetHookStatus', (req: any, res: any) => {
     }
 ]
     */
-    if (result) return res.json({val: true});
-    else return res.json({val: false});
+    if (result) {
+      return res.json({val: true});
+    }
+    else {
+      return res.json({val: false});
+    }
     //return res.json(result.recordset);
+  }).catch(ex  => {
+    console.log (ex);
+    return res.json({val: false});
   });
 });
 
@@ -172,7 +179,9 @@ router.get('/GetRepos', (req: any, res: any) => {
   }
   const tenantId = getTenant(req, res);
   gitRepository.GetRepos(tenantId, req.query.org, req.query.bustTheCache, req.query.getFromGit).then(result => {
-    return res.json(result.recordset);
+    if (result) {
+      return res.json(result);
+    }
   });
 });
 
@@ -182,10 +191,10 @@ router.get('/GetPRfromGit', (req: any, res: any) => {
   }
   const tenantId = getTenant(req, res);
   gitRepository.GetRepos(tenantId, req.query.org, req.query.bustTheCache, req.query.getFromGit).then(result => {
-    for (let i = 0; i < result.recordset.length; i++) {
-      if (i === 100) break; //git does't like it to be hitting hard
-      gitRepository.FillPullRequest(tenantId, req.query.org, result.recordset[i].RepoName);
+    for (let i = 0; i < result.length; i++) {
+       const res = gitRepository.FillPullRequest(tenantId, req.query.org, result[i].RepoName);
     }
+    return res.json(result.length);
   });
 });
 

@@ -119,13 +119,14 @@ class SQLRepository {
 
   async SaveRepo(email: string, org: string, repos: string[]) {
     try {
+      
       await this.createPool();
       const request = await this.pool.request();
       let repoDetails: string;
       for (let i = 0; i < repos.length; i++) {
         let repo: any = repos[i];
         let createdAt = String(repo.createdAt).substr(0, 10);
-
+        console.log ('SaveRepo' + org + " " + repo);
         request.input('TenantId', sql.VarChar(200), email);
         request.input('Organization', sql.VarChar(200), org);
         request.input('Id', sql.VarChar(200), repo.id);
@@ -134,7 +135,7 @@ class SQLRepository {
         request.input('HomePage', sql.VarChar(200), repo.homepageUrl);
         request.input('CreatedAt', sql.VarChar(10), createdAt);
         const recordSet = await request.execute('SetRepos');
-        console.log(i);
+        
       }
     } catch (ex) {
       return ex;
@@ -161,9 +162,9 @@ class SQLRepository {
 
     const recordSet = await request.execute('GetRepos');
     if (recordSet) {
-      this.myCache.set(cacheKey, recordSet);
+      this.myCache.set(cacheKey, recordSet.recordset);
     }
-    return recordSet;
+    return recordSet.recordset;
   }
 
   async SaveOrg(email: string, orgs: string[]) {
@@ -236,8 +237,8 @@ class SQLRepository {
     request.input('repo', sql.VarChar(1000), repo);
 
     const recordSet = await request.execute('GetPR4Repo');
-    this.myCache.set(cacheKey, recordSet);
-    return recordSet;
+    this.myCache.set(cacheKey, recordSet.recordset);
+    return  recordSet.recordset;
   }
 
   async SavePR4Repo(org: string, repo: string, body: string) {
@@ -289,7 +290,6 @@ class SQLRepository {
         request.input('Avatar_Url', sql.VarChar(2000), avatar_url);
         request.input('User_Url', sql.VarChar(2000), user_url);
         try {
-          console.log(repo + '->' + id);
           let x = await request.execute('SavePR4Repo');
         } catch (ex) {
           console.log(ex);
