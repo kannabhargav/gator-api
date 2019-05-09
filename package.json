@@ -5,7 +5,7 @@
   "main": "./dist/app.js",
   "engines": {
     "node": "10.15.2",
-    "npm": "6.9.0"
+    "npm": "6.4.1"
   },
   "scripts": {
     "build": "tsc",

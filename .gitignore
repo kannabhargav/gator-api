@@ -2,4 +2,8 @@ node_modules/
 keys.ts
 Lib/SqlConfig.ts
 dist/Lib/sqlConfig.js
-dist/
+dist/Lib/SqlConfig - Copy.js
+dist/Lib/SqlConfig - Copy.js.map
+dist/keys.js
+dist/gator-api.zip
+dist/Test/
