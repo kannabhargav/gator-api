@@ -38,11 +38,11 @@ function getTenant(req: any, res: any) {
   }
 }
 
-router.get('/Namste', (req: any, res: any) => {
+router.get('/Namaste', (req: any, res: any) => {
   if (!checkToken(req, res)) {
-    return '{val: false, code: 404, message: "Auth Failed"}';
+    return res.json('{val: false, code: 404, message: "Auth Failed"}');
   } else {
-    return res.json({val: 'Namste'});
+    return res.json({val: 'Namaste beta'});
   }
 });
 

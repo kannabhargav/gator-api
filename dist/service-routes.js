@@ -38,7 +38,7 @@ function getTenant(req, res) {
 }
 router.get('/Namste', (req, res) => {
     if (!checkToken(req, res)) {
-        return '{val: false, code: 404, message: "Auth Failed"}';
+        return res.json('{val: false, code: 404, message: "Auth Failed"}');
     }
     else {
         return res.json({ val: 'Namste' });
