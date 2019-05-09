@@ -44,7 +44,8 @@ app.get('/', (req, res) => {
 app.get('/success', (req, res) => {
     res.render('success');
 });
-app.listen(3000, () => {
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
     console.log('listenting for request on port 3000');
 });
 //# sourceMappingURL=app.js.map
