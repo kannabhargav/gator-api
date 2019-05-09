@@ -3,6 +3,7 @@ const router = require('express').Router();
 
 import {SQLRepository} from './Lib/sqlRepository';
 import {GitRepository} from './Lib/gitRepository';
+import { RSA_PKCS1_OAEP_PADDING } from 'constants';
 let sqlRepositoy = new SQLRepository(null);
 let gitRepository = new GitRepository();
 const jwt = require('jsonwebtoken');
@@ -10,30 +11,41 @@ const verifyOptions = {
   algorithm: ['RS256'],
 };
 
+
 function checkToken(req: any, res: any) {
   try {
     const token = req.headers['authorization'];
     const result = jwt.verify(token, 'JWTSuperSecret', verifyOptions);
     return true;
   } catch (ex) {
-    // var callbackURL = 'http://localhost:8080/login' ;
-    // res.redirct (callbackURL);
     return false;
   }
 }
 
-//It is a repeate of checktoken for now, but check should go away from here
+//It is a repeate of checktoken for now, but checkToken should go away from here
+//
 function getTenant(req: any, res: any) {
   try {
-    const token = req.headers['authorization'];
+    const token = req.headers['authorization']; //it is tenantId in header
     const result = jwt.verify(token, 'JWTSuperSecret', verifyOptions);
-    return result;
+    if(result)
+      return result;
+    else {
+      return ;
+    }
   } catch (ex) {
-    // var callbackURL = 'http://localhost:8080/login' ;
-    // res.redirct (callbackURL);
-    return false;
+    return;
   }
 }
+
+router.get('/Namste', (req: any, res: any) => {
+  if (!checkToken(req, res)) {
+    return '{val: false, code: 404, message: "Auth Failed"}';
+  } else {
+    return res.json({val: 'Namste'});
+  }
+});
+
 
 router.get('/GetHookStatus', (req: any, res: any) => {
   if (!checkToken(req, res)) {

@@ -119,14 +119,13 @@ class SQLRepository {
 
   async SaveRepo(email: string, org: string, repos: string[]) {
     try {
-      
       await this.createPool();
       const request = await this.pool.request();
       let repoDetails: string;
       for (let i = 0; i < repos.length; i++) {
         let repo: any = repos[i];
         let createdAt = String(repo.createdAt).substr(0, 10);
-        console.log ('SaveRepo' + org + " " + repo);
+        console.log('SaveRepo' + org + ' ' + repo);
         request.input('TenantId', sql.VarChar(200), email);
         request.input('Organization', sql.VarChar(200), org);
         request.input('Id', sql.VarChar(200), repo.id);
@@ -135,7 +134,6 @@ class SQLRepository {
         request.input('HomePage', sql.VarChar(200), repo.homepageUrl);
         request.input('CreatedAt', sql.VarChar(10), createdAt);
         const recordSet = await request.execute('SetRepos');
-        
       }
     } catch (ex) {
       return ex;
@@ -217,10 +215,11 @@ class SQLRepository {
     const request = await this.pool.request();
     request.input('Id', sql.Int, id);
     const recordSet = await request.execute('GetTenant');
-    if (recordSet) {
-      this.myCache.set(cacheKey, recordSet);
-    }
-    return recordSet;
+    if (recordSet.recordset.length > 0) {
+      this.myCache.set(cacheKey, recordSet.recordset);
+      return recordSet.recordset;
+    } else 
+        return ;
   }
 
   //GetPR
@@ -237,10 +236,19 @@ class SQLRepository {
     request.input('repo', sql.VarChar(1000), repo);
 
     const recordSet = await request.execute('GetPR4Repo');
-    this.myCache.set(cacheKey, recordSet.recordset);
-    return  recordSet.recordset;
+    if (recordSet.recordset.length > 0) {
+      this.myCache.set(cacheKey, recordSet.recordset);
+      return recordSet.recordset;
+    }
+    else {
+      return ;
+    }
+   
   }
 
+  /*
+    Saves only action === 'opened' || action === 'closed' || action === 'edited'
+  */
   async SavePR4Repo(org: string, repo: string, body: string) {
     try {
       await this.createPool();
@@ -262,9 +270,14 @@ class SQLRepository {
       for (let i = 0; i < nodes.length; i++) {
         let elm = nodes[i];
         if ('greenkeeper' === elm.author.login) continue;
+        if (elm.action === 'opened' || elm.action === 'closed' || elm.action === 'edited') {
+          //move one
+        } else {
+          continue;
+        }
         id = elm.id;
         url = elm.url;
-        state = elm.state;
+        state = elm.action; //Found out state has too much noise but action open and close is better
         title = elm.title;
         created_at = elm.createdAt;
         pr_body = elm.body;
@@ -308,7 +321,10 @@ class SQLRepository {
       return val.recordset[0].Auth_Token;
     }
     const recordSet = await this.GetTenant(id);
-    return recordSet.recordset[0].Auth_Token;
+    if (recordSet)
+      return recordSet[0].Auth_Token;
+    else 
+      return ;
   }
 
   async TopDevForLastXDays(org: string, day: number = 1) {
@@ -349,7 +365,9 @@ class SQLRepository {
     request.input('Org', sql.VarChar(100), org);
     request.input('Day', sql.Int, day);
     const recordSet = await request.execute('PullRequestCountForLastXDays');
-    this.myCache.set(cacheKey, recordSet.recordset);
+    if (recordSet.recordset.length > 0) {
+      this.myCache.set(cacheKey, recordSet.recordset);
+    }
     return recordSet.recordset;
   }
 
@@ -382,7 +400,9 @@ class SQLRepository {
     request.input('Day', sql.Int, day);
     request.input('pageSize', sql.Int, pageSize);
     const recordSet = await request.execute('PullRequest4Devs');
-    this.myCache.set(cacheKey, recordSet.recordset);
+    if (recordSet.recordset.length > 0) {
+      this.myCache.set(cacheKey, recordSet.recordset);
+    }
     return recordSet.recordset;
   }
 
