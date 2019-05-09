@@ -53,7 +53,7 @@ pipeline {
                         sh """
                         git config --global url."git@github.com:".insteadOf "https://github.com/"
                         npm i --quiet --cache=${WORKSPACE}/npm-cache
-                        NODE_OPTIONS=--max_old_space_size=4096 npm run build -- \
+                        NODE_OPTIONS=--max_old_space_size=4096 npm run build \
                         --destination=$WORKSPACE/$BUILD_VERSION \
                         --buildVersion=$BUILD_VERSION \
                         --npmCache=$WORKSPACE/npm-cache
