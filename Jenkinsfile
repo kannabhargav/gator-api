@@ -46,7 +46,7 @@ pipeline {
                     return params.DEPLOY_TO == 'CI' && params.BUILD_VERSION == ''
                 }
             }
-            steps {
+          steps {
                 nodejs(configId: 'kw-npmrc', nodeJSInstallationName: 'Windows Node.js') {
                     // Checkout source code
                     checkout scm
@@ -56,21 +56,19 @@ pipeline {
 
                     bat """
                     npm run build \
+                    --destination=$BUILD_VERSION \
+                    --buildVersion=$BUILD_VERSION \
                     --npmCache=npm-cache
                     """
-                    bat "echo %cd% && dir"
-                    
                     
                     // push build to Artifactory
-                  withCredentials([string(credentialsId: 'ARTIFACTORY_USER', variable: 'ARTIFACTORY_USER'),
-                         string(credentialsId: 'ARTIFACTORY_TOKEN', variable: 'ARTIFACTORY_TOKEN')]) {
-              bat "7z a -ttar -so win-${BUILD_VERSION}.tar release | 7z a -si win-${BUILD_VERSION}.tar.gz"
-                bat "dir"
-                      bat "c:/curl/bin/curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_TOKEN} -T win-${BUILD_VERSION}.tar.gz https://builds.aws.labshare.org/artifactory/labshare/gator-api/win-${BUILD_VERSION}.tar.gz"
-                  
+                    withCredentials([string(credentialsId: 'ARTIFACTORY_USER', variable: 'ARTIFACTORY_USER'),
+                                string(credentialsId: 'ARTIFACTORY_TOKEN', variable: 'ARTIFACTORY_TOKEN')]) {
+                        bat "7z a -ttar -so ${BUILD_VERSION}.tar ${BUILD_VERSION} | 7z a -si ${BUILD_VERSION}.tar.gz"
+                        bat "c:/curl/bin/curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_TOKEN} -T ${BUILD_VERSION}.tar.gz https://builds.aws.labshare.org/artifactory/labshare/gator-api/${BUILD_VERSION}.tar.gz"
+                    }
+                }
             }
-        }
-    }
 }
 }
 }     
