@@ -59,7 +59,7 @@ pipeline {
                     --npmCache=npm-cache
                     """
                     bat "echo %cd% && dir"
-                    del "dist"
+                   
                     
                     // push build to Artifactory
                     withCredentials([string(credentialsId: 'ARTIFACTORY_USER', variable: 'ARTIFACTORY_USER'),
