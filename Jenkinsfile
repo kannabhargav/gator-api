@@ -37,45 +37,40 @@ pipeline {
                 }
             }
         }
-        stage('Build - Linux') {
+        stage('Build - Windows') {
+            agent {
+                label 'build && hedwig'
+            }
             when {
                 expression {
                     return params.DEPLOY_TO == 'CI' && params.BUILD_VERSION == ''
                 }
             }
             steps {
-                sshagent (credentials: ['917d2cc8-84fe-4faf-89e5-25ea6649be83']) {
-                    nodejs(configId: 'kw-npmrc', nodeJSInstallationName: 'Default Node.js') {
-                        // Checkout source code
-                        checkout scm
+                nodejs(configId: 'kw-npmrc', nodeJSInstallationName: 'Windows Node.js') {
+                    // Checkout source code
+                    checkout scm
 
-                        // Generate local service build distribution
-                        sh """
-                        git config --global url."git@github.com:".insteadOf "https://github.com/"
-                        npm i --quiet --cache=${WORKSPACE}/npm-cache
-                        NODE_OPTIONS=--max_old_space_size=4096 npm run build \
-                        --destination=$WORKSPACE/$BUILD_VERSION \
-                        --buildVersion=$BUILD_VERSION \
-                        --npmCache=$WORKSPACE/npm-cache
-                        """
+                    // Generate local service build distribution
+                    bat "npm i --quiet --cache=npm-cache"
 
-                        script {
-                            // See: https://jenkins.io/doc/book/pipeline/docker/#building-containers
-                            docker.withRegistry(
-                                "https://registry-1.docker.io/v2/",
-                                "f16c74f9-0a60-4882-b6fd-bec3b0136b84"
-                            ) {
-                                // Build and push the images to the registry
-                                def image = docker.build(
-                                    "labshare/hedwig-storage-services:${env.BUILD_VERSION}",
-                                    "--no-cache --build-arg SOURCE_FOLDER=./${env.BUILD_VERSION} ."
-                                )
-                                image.push("${env.BUILD_VERSION}")
-                            }
-                        }
-                    }
-                }
+                    bat """
+                    npm run build \
+                    --npmCache=npm-cache
+                    """
+                    bat "echo %cd% && dir"
+                    
+                    
+                    // push build to Artifactory
+                  withCredentials([string(credentialsId: 'ARTIFACTORY_USER', variable: 'ARTIFACTORY_USER'),
+                         string(credentialsId: 'ARTIFACTORY_TOKEN', variable: 'ARTIFACTORY_TOKEN')]) {
+              bat "7z a -ttar -so win-${BUILD_VERSION}.tar release | 7z a -si win-${BUILD_VERSION}.tar.gz"
+                bat "dir"
+                      bat "c:/curl/bin/curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_TOKEN} -T win-${BUILD_VERSION}.tar.gz https://builds.aws.labshare.org/artifactory/labshare/gator-api/win-${BUILD_VERSION}.tar.gz"
+                  
             }
         }
     }
+}
+}
 }     
