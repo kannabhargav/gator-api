@@ -60,6 +60,7 @@ pipeline {
                     --buildVersion=$BUILD_VERSION \
                     --npmCache=npm-cache
                     """
+                    bat "echo %cd% && dir"
                     
                     // push build to Artifactory
                     withCredentials([string(credentialsId: 'ARTIFACTORY_USER', variable: 'ARTIFACTORY_USER'),
