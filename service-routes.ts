@@ -2,7 +2,7 @@
 const router = require('express').Router();
 
 import {SQLRepository} from './Lib/sqlRepository';
-import {GitRepository} from './Lib/gitRepository';
+import {GitRepository} from './Lib/GitRepository';
 import { RSA_PKCS1_OAEP_PADDING } from 'constants';
 let sqlRepositoy = new SQLRepository(null);
 let gitRepository = new GitRepository();
