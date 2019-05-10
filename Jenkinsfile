@@ -4,7 +4,7 @@ pipeline {
     }
     parameters {
         string(name: 'BUILD_VERSION', defaultValue: '', description: 'The build version to deploy (optional)')
-        
+         choice(name: 'DEPLOY_TO', choices: 'CI', description: 'The deployment stage to trigger')
     }
     agent {
         label 'aws && build && linux && ubuntu'
