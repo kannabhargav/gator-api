@@ -64,7 +64,7 @@ pipeline {
                     // push build to Artifactory
                     withCredentials([string(credentialsId: 'ARTIFACTORY_USER', variable: 'ARTIFACTORY_USER'),
                                 string(credentialsId: 'ARTIFACTORY_TOKEN', variable: 'ARTIFACTORY_TOKEN')]) {
-                        bat "7z a -ttar -so ${BUILD_VERSION}.tar ${BUILD_VERSION} | 7z a -si ${BUILD_VERSION}.tar.gz"
+                        bat "7z a -ttar -so ${BUILD_VERSION}.tar dist | 7z a -si ${BUILD_VERSION}.tar.gz"
                         bat "c:/curl/bin/curl -u${ARTIFACTORY_USER}:${ARTIFACTORY_TOKEN} -T ${BUILD_VERSION}.tar.gz https://builds.aws.labshare.org/artifactory/labshare/gator-api/${BUILD_VERSION}.tar.gz"
                     }
                 }
