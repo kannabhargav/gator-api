@@ -56,8 +56,6 @@ pipeline {
 
                     bat """
                     npm run build \
-                    --destination=$BUILD_VERSION \
-                    --buildVersion=$BUILD_VERSION \
                     --npmCache=npm-cache
                     """
                     bat "echo %cd% && dir"
