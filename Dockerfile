@@ -1,7 +1,7 @@
 FROM keymetrics/pm2:10-alpine
 RUN apk update && apk upgrade && \
 apk add --no-cache bash git openssh tzdata
-WORKDIR /labshare/gator-api
+WORKDIR /labshare/gm
 ARG NPM_TOKEN
 COPY . .
 # COPY package.json .
