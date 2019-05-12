@@ -11,6 +11,6 @@ RUN npm -g config set user root
 RUN npm install typescript -g
 RUN npm run build
 RUN rm -f .npmrc
-ENV DB_HOST "facility-config-mongo"
+ENV DB_HOST "gator-config-mongo"
 ENTRYPOINT [ "pm2-runtime", "start", "pm2.json" ]
 EXPOSE 8000
